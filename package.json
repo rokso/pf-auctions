@@ -1,0 +1,32 @@
+{
+  "name": "pf-auctions",
+  "version": "1.0.0",
+  "description": "Pure Finance Descending Price Auctions",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "npx hardhat clean",
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "coverage": "npm run build && npx hardhat coverage --temp artifacts --network coverage"
+  },
+  "author": "BLOQ",
+  "license": "MIT",
+  "dependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-etherscan": "^2.1.1",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@openzeppelin/contracts": "^3.4.1",
+    "@openzeppelin/hardhat-upgrades": "^1.6.0",
+    "chai": "^4.3.4",
+    "dotenv": "^8.2.0",
+    "ethereum-waffle": "^3.3.0",
+    "hardhat": "^2.2.0"
+  },
+  "devDependencies": {
+    "solidity-coverage": "^0.7.16"
+  }
+}

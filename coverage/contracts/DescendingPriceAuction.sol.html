@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts/DescendingPriceAuction.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> DescendingPriceAuction.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">97.56% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>80/82</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">64.58% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>31/48</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">95.45% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>21/22</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">98.78% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>81/82</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
+&nbsp;
+pragma solidity 0.7.3;
+pragma experimental ABIEncoderV2;
+&nbsp;
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/EnumerableSet.sol";
+import "@openzeppelin/contracts/utils/EnumerableMap.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "./interfaces/IDescendingPriceAuction.sol";
+&nbsp;
+contract DescendingPriceAuction is IDescendingPriceAuction {
+    using SafeMath for uint256;
+    using SafeERC20 for IERC20;
+    using Counters for Counters.Counter;
+    using EnumerableSet for EnumerableSet.UintSet;
+    using EnumerableMap for EnumerableMap.UintToAddressMap;
+&nbsp;
+    mapping(uint256 =&gt; DPA) public auctions;
+    EnumerableMap.UintToAddressMap private collections;
+    EnumerableMap.UintToAddressMap private auctioneers;
+    Counters.Counter private collectionCount;
+    Counters.Counter private auctionCount;
+&nbsp;
+    // Mapping from aucitoneer address to their (enumerable) set of auctions
+    mapping (address =&gt; EnumerableSet.UintSet) private _byNeer;
+&nbsp;
+    // Mapping from collectionId to its (enumerable) set of auctions
+    mapping (uint256 =&gt; EnumerableSet.UintSet) private _byColl;
+&nbsp;
+    constructor() {
+        // Start the counts at 1
+        // the 0th collection is available to all
+        auctionCount.increment();
+        collectionCount.increment();
+    }
+&nbsp;
+    function _msgSender() internal view returns (address payable) {
+        return msg.sender;
+    }
+&nbsp;
+    modifier onlyAuctioneer(uint256 _id) {
+        (bool success, address neer) = auctioneers.tryGet(_id);
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(success, "non-existent-auction");
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_msgSender() == neer, "caller-not-auctioneer");
+        _;
+    }
+    
+    modifier onlyCollectionOwner(uint256 _id) {
+        // anyone can create an auction in the 0th collection
+        if(_id != 0) {
+            (bool success, address owner) = collections.tryGet(_id);
+            <span class="missing-if-branch" title="else path not taken" >E</span>require(success, "non-existent-collection");
+            require(_msgSender() == owner, "caller-not-collection-owner");
+        }
+        _;
+    }
+&nbsp;
+    function totalAuctions() external view override returns (uint256) {
+        return auctioneers.length();
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function totalCollections() external view override returns (uint256) {</span>
+<span class="cstat-no" title="statement not covered" >        return collections.length();</span>
+    }
+&nbsp;
+    function collectionLength(uint256 _id) external view override returns (uint256) {
+        return _byColl[_id].length();
+    }
+&nbsp;
+    function neerGroupLength(address _neer) external view override returns (uint256) {
+        return _byNeer[_neer].length();
+    }
+&nbsp;
+    // return AuctionId
+    function auctionOfNeerByIndex(address _neer, uint256 i) external view override returns (uint256) {
+        return _byNeer[_neer].at(i);
+    }
+&nbsp;
+    // return AuctionId
+    function auctionOfCollByIndex(uint256 _id, uint256 i) external view override returns (uint256) {
+        return _byColl[_id].at(i);
+    }
+&nbsp;
+    function _auctionExists(uint256 _auctionId) internal view virtual returns (bool) {
+        return auctioneers.contains(_auctionId);
+    }
+&nbsp;
+    function createAuction(DPAConfig memory _auction) external override onlyCollectionOwner(_auction.collectionId) {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_auction.endBlock &gt; block.number, 'end-block-passed');
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_auction.ceiling != 0, 'start-price-zero');
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_auction.ceiling &gt;= _auction.floor, 'invalid-pricing');
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_auction.paymentToken != address(0x0), 'invalid-payment-token');
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_auction.payee != address(0x0), 'invalid-payee');
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_auction.tokens.length != 0, 'no-line-items');
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_auction.tokens.length == _auction.tokenAmounts.length, 'improper-line-items');
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_auction.tokens.length &lt; 8, 'too-many-line-items');
+        _createAuction(_auction);
+    }
+&nbsp;
+    function _createAuction(DPAConfig memory _auction) internal {
+        _pullTokens(_auction.tokens, _auction.tokenAmounts);
+        uint256 id = auctionCount.current();
+        auctions[id] = DPA(
+            {
+                ceiling: _auction.ceiling,
+                floor: _auction.floor,
+                collectionId: _auction.collectionId,
+                paymentToken: _auction.paymentToken,
+                payee: _auction.payee,
+                startBlock: block.number,
+                endBlock: _auction.endBlock,
+                stopped: false,
+                winner: address(0x0),
+                tokens: _auction.tokens,
+                tokenAmounts: _auction.tokenAmounts
+            }
+        );
+        address neer = _msgSender();
+        auctioneers.set(id, neer);
+        _byNeer[neer].add(id);
+        _byColl[_auction.collectionId].add(id);
+        auctionCount.increment();
+        emit AuctionCreated(id, _auction.collectionId, neer);
+    }
+&nbsp;
+    function _pullTokens(address[] memory tokens, uint256[] memory amounts) internal {
+        for (uint256 i = 0; i &lt; tokens.length; i++) {
+            _pullToken(tokens[i], amounts[i]);
+        }
+    }
+&nbsp;
+    function _pullToken(address token, uint256 amount) internal {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(amount != 0, 'invalid-token-amount');
+        IERC20(token).safeTransferFrom(_msgSender(), address(this), amount);
+    }
+&nbsp;
+    function _sendTokens(address recipient, address[] memory tokens, uint256[] memory amounts) internal {
+        for (uint256 i = 0; i &lt; tokens.length; i++) {
+            IERC20(tokens[i]).safeTransfer(recipient, amounts[i]);
+        }
+    }
+&nbsp;
+    function stopAuction(uint256 _id) external override onlyAuctioneer(_id) {
+        DPA memory auction = auctions[_id];
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(auction.winner == address(0x0) &amp;&amp; !auction.stopped, "cant-be-stopped");
+        _sendTokens(auctioneers.get(_id), auction.tokens, auction.tokenAmounts);
+        auctions[_id].stopped = true;
+        emit AuctionStopped(_id);
+    }
+&nbsp;
+    function bid(uint256 _id) external override {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_auctionExists(_id), 'no-such-auction-id');
+        DPA memory auction = auctions[_id];
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(auction.winner == address(0x0), "auction-has-ended");
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(!auction.stopped, "auction-has-been-stopped");
+        IERC20 paymentToken = IERC20(auction.paymentToken);
+        uint256 price = _getCurrentPrice(auction.ceiling, auction.floor, auction.startBlock, auction.endBlock, block.number);
+        address bidder = _msgSender();
+        paymentToken.safeTransferFrom(bidder, auction.payee, price);
+        _sendTokens(bidder, auction.tokens, auction.tokenAmounts);
+        auction.stopped = true;
+        auction.winner = bidder;
+        auctions[_id] = auction;
+        emit AuctionWon(_id, price, auction.paymentToken, bidder);
+    }
+&nbsp;
+    function getCurrentPrice(uint256 _id) external view override returns (uint256) {
+        require(_auctionExists(_id), 'no-such-auction-id');
+        DPA memory a = auctions[_id];
+        return _getCurrentPrice(a.ceiling, a.floor, a.startBlock, a.endBlock, block.number);
+    }
+&nbsp;
+    function _getCurrentPrice(uint256 c, uint256 f, uint256 s, uint256 e, uint256 t) internal pure returns (uint256 p) {
+        require(e &gt; s, "invalid-ramp");
+        require(t &gt; s, "invalid-time");
+        require(c &gt;= f, "price-not-descending");
+        if (t &gt; e) return f;
+        <span class="missing-if-branch" title="if path not taken" >I</span>if ((t == s || f == c)) <span class="cstat-no" title="statement not covered" >return c;</span>
+        uint256 priceDelta = c.sub(f);
+        uint256 tDelta = e.sub(s);
+        // we know m is actually negative, so we're solving y=-mx+b (p = -(m * t) + b)
+        uint256 m = priceDelta.mul(1e18).div(tDelta);
+        uint256 b = c.add(m.mul(s).div(1e18));
+        p = b.sub(m.mul(t).div(1e18));
+    }
+&nbsp;
+    function createCollection() external override returns (uint256) {
+        uint256 id = collectionCount.current();
+        address owner = _msgSender();
+        collections.set(id, owner);
+        collectionCount.increment();
+        emit CollectionCreated(id, owner);
+        return id;
+    }
+&nbsp;
+    function transferCollection(address _to, uint256 _id) external override onlyCollectionOwner(_id) {
+        collections.set(_id, _to);
+        emit CollectionTransfer(_id, _msgSender(), _to);
+    }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Apr 22 2021 22:03:56 GMT-0700 (Pacific Daylight Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>
