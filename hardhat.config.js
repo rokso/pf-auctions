@@ -8,6 +8,7 @@ require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
 require("@openzeppelin/hardhat-upgrades");
+require('hardhat-contract-sizer');
 require("solidity-coverage");
 
 const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
@@ -31,4 +32,9 @@ module.exports = {
     // Obtain one at https://etherscan.io/
     apiKey: ETHERSCAN_API_KEY,
   },
+  contractSizer: {
+    alphaSort: true,
+    runOnCompile: true,
+    disambiguatePaths: false,
+  }
 };

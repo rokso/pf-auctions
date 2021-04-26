@@ -27,6 +27,7 @@
     "hardhat": "^2.2.0"
   },
   "devDependencies": {
+    "hardhat-contract-sizer": "^2.0.3",
     "solidity-coverage": "^0.7.16"
   }
 }
