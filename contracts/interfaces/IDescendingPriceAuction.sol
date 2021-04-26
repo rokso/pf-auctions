@@ -33,7 +33,12 @@ interface IDescendingPriceAuction {
     event CollectionCreated(uint256 id, address owner);
     event CollectionTransfer(uint256 id, address from, address to);
     event AuctionStopped(uint256 id);
-    event AuctionWon(uint256 id, uint256 price, address paymentToken, address winner);
+    event AuctionWon(
+        uint256 id,
+        uint256 price,
+        address paymentToken,
+        address winner
+    );
 
     function totalAuctions() external view returns (uint256);
 
@@ -43,9 +48,15 @@ interface IDescendingPriceAuction {
 
     function neerGroupLength(address _neer) external view returns (uint256);
 
-    function auctionOfNeerByIndex(address _neer, uint256 i) external view returns (uint256);
+    function auctionOfNeerByIndex(address _neer, uint256 i)
+        external
+        view
+        returns (uint256);
 
-    function auctionOfCollByIndex(uint256 _id, uint256 i) external view returns (uint256);
+    function auctionOfCollByIndex(uint256 _id, uint256 i)
+        external
+        view
+        returns (uint256);
 
     function createAuction(DPAConfig memory _auction) external;
 
