@@ -228,6 +228,70 @@ describe('Descending Price Auction', function () {
       expect(p).to.equal('15')
     })
 
+    it('Should properly calculate the price 1', async function () {
+      const s = 100
+      const e = 200
+      const c = 40
+      const f = 30
+      let t = 125
+      let p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      expect(p).to.equal('38')
+      t = 150
+      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      expect(p).to.equal('35')
+      t = 200
+      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      expect(p).to.equal(f)
+    })
+
+    it('Should properly calculate the price 2', async function () {
+      const s = 100
+      const e = 200
+      const c = 800
+      const f = 600
+      let t = 125
+      let p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      expect(p).to.equal('750')
+      t = 150
+      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      expect(p).to.equal('700')
+      t = 200
+      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      expect(p).to.equal(f)
+    })
+
+    it('Should properly calculate the price 3', async function () {
+      const s = 100
+      const e = 200
+      const c = 1111111
+      const f = 1
+      let t = 125
+      let p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      expect(p).to.equal('833334')
+      t = 150
+      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      expect(p).to.equal('555556')
+      t = 200
+      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      expect(p).to.equal(f)
+    })
+
+    it('Should properly calculate the price 4', async function () {
+      const s = 100
+      const e = 200
+      const c = ethers.BigNumber.from('600000000000000000000')
+      const f = ethers.BigNumber.from('400000000000000000000')
+      let t = 125
+      let p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      expect(p).to.equal('550000000000000000000')
+      t = 150
+      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      expect(p).to.equal('500000000000000000000')
+      t = 200
+      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      expect(p).to.equal(f)
+    })
+
     it('Should fail to calculate if the price is not descending', async function () {
       const s = 0
       const e = 10
