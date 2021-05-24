@@ -224,7 +224,8 @@ describe('Descending Price Auction', function () {
       const c = 20
       const f = 10
       const t = 5
-      const p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      const absDecay = await dpa.calcAbsDecayTest(c, f, s, e)
+      const p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal('15')
     })
 
@@ -234,13 +235,14 @@ describe('Descending Price Auction', function () {
       const c = 40
       const f = 30
       let t = 125
-      let p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      const absDecay = await dpa.calcAbsDecayTest(c, f, s, e)
+      let p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal('38')
       t = 150
-      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal('35')
       t = 200
-      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal(f)
     })
 
@@ -250,13 +252,14 @@ describe('Descending Price Auction', function () {
       const c = 800
       const f = 600
       let t = 125
-      let p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      const absDecay = await dpa.calcAbsDecayTest(c, f, s, e)
+      let p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal('750')
       t = 150
-      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal('700')
       t = 200
-      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal(f)
     })
 
@@ -266,13 +269,14 @@ describe('Descending Price Auction', function () {
       const c = 1111111
       const f = 1
       let t = 125
-      let p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      const absDecay = await dpa.calcAbsDecayTest(c, f, s, e)
+      let p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal('833334')
       t = 150
-      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal('555556')
       t = 200
-      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal(f)
     })
 
@@ -282,47 +286,15 @@ describe('Descending Price Auction', function () {
       const c = ethers.BigNumber.from('600000000000000000000')
       const f = ethers.BigNumber.from('400000000000000000000')
       let t = 125
-      let p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      const absDecay = await dpa.calcAbsDecayTest(c, f, s, e)
+      let p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal('550000000000000000000')
       t = 150
-      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal('500000000000000000000')
       t = 200
-      p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal(f)
-    })
-
-    it('Should fail to calculate if the price is not descending', async function () {
-      const s = 0
-      const e = 10
-      const c = 20
-      const f = 25
-      const t = 5
-      await expect(dpa.getCurrentPriceTest(c, f, s, e, t)).to.be.revertedWith(
-        'price-not-descending'
-      )
-    })
-
-    it('Should fail to calculate if the ramp is not valid', async function () {
-      const s = 20
-      const e = 10
-      const c = 20
-      const f = 25
-      const t = 5
-      await expect(dpa.getCurrentPriceTest(c, f, s, e, t)).to.be.revertedWith(
-        'invalid-ramp'
-      )
-    })
-
-    it('Should fail to calculate if the time is invalid', async function () {
-      const s = 5
-      const e = 10
-      const c = 20
-      const f = 25
-      const t = 1
-      await expect(dpa.getCurrentPriceTest(c, f, s, e, t)).to.be.revertedWith(
-        'invalid-time'
-      )
     })
 
     it('Should return the floor if the time is past the end', async function () {
@@ -331,7 +303,8 @@ describe('Descending Price Auction', function () {
       const c = 20
       const f = 10
       const t = 15
-      const p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      const absDecay = await dpa.calcAbsDecayTest(c, f, s, e)
+      const p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal(f)
     })
 
@@ -341,7 +314,8 @@ describe('Descending Price Auction', function () {
       const c = 20
       const f = 20
       const t = 300
-      const p = await dpa.getCurrentPriceTest(c, f, s, e, t)
+      const absDecay = await dpa.calcAbsDecayTest(c, f, s, e)
+      const p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal(c)
     })
   })

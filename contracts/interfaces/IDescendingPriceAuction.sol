@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.7.3;
+pragma solidity 0.8.3;
 pragma experimental ABIEncoderV2;
 
 struct DPAConfig {
@@ -17,6 +17,7 @@ struct DPAConfig {
 struct DPA {
     uint256 ceiling;
     uint256 floor;
+    uint256 absoluteDecay;
     uint256 collectionId;
     address paymentToken;
     address payee;
