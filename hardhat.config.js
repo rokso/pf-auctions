@@ -19,7 +19,7 @@ const LOCAL_PRIVATE_KEY = process.env.LOCAL_PRIVATE_KEY || ''
 
 module.exports = {
   defaultNetwork: 'hardhat',
-  solidity: '0.7.3',
+  solidity: '0.8.3',
   networks: {
     hardhat: {},
     coverage: {

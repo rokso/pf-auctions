@@ -1,18 +1,16 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.7.3;
+pragma solidity 0.8.3;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/utils/EnumerableSet.sol";
-import "@openzeppelin/contracts/utils/EnumerableMap.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableMap.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IDescendingPriceAuction.sol";
 
 contract DescendingPriceAuction is IDescendingPriceAuction {
-    using SafeMath for uint256;
     using SafeERC20 for IERC20;
     using Counters for Counters.Counter;
     using EnumerableSet for EnumerableSet.UintSet;
@@ -37,7 +35,7 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         collectionCount.increment();
     }
 
-    function _msgSender() internal view returns (address payable) {
+    function _msgSender() internal view returns (address) {
         return msg.sender;
     }
 
@@ -135,9 +133,17 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
     function _createAuction(DPAConfig memory _auction) internal {
         _pullTokens(_auction.tokens, _auction.tokenAmounts);
         uint256 id = auctionCount.current();
+        uint256 decay =
+            _calulateAbsoluteDecay(
+                _auction.ceiling,
+                _auction.floor,
+                block.number,
+                _auction.endBlock
+            );
         auctions[id] = DPA({
             ceiling: _auction.ceiling,
             floor: _auction.floor,
+            absoluteDecay: decay,
             collectionId: _auction.collectionId,
             paymentToken: _auction.paymentToken,
             payee: _auction.payee,
@@ -198,9 +204,8 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         IERC20 paymentToken = IERC20(auction.paymentToken);
         uint256 price =
             _getCurrentPrice(
-                auction.ceiling,
+                auction.absoluteDecay,
                 auction.floor,
-                auction.startBlock,
                 auction.endBlock,
                 block.number
             );
@@ -223,32 +228,35 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         DPA memory a = auctions[_id];
         return
             _getCurrentPrice(
-                a.ceiling,
+                a.absoluteDecay,
                 a.floor,
-                a.startBlock,
                 a.endBlock,
                 block.number
             );
     }
 
     function _getCurrentPrice(
-        uint256 c,
+        uint256 m,
         uint256 f,
-        uint256 s,
         uint256 e,
         uint256 t
     ) internal pure returns (uint256 p) {
-        require(e > s, "invalid-ramp");
-        require(t > s, "invalid-time");
-        require(c >= f, "price-not-descending");
         if (t > e) return f;
-        if ((t == s || f == c)) return c;
-        uint256 priceDelta = c.sub(f);
-        uint256 tDelta = e.sub(s);
+        if (m == 0) return f;
         // we know m is actually negative, so we're solving y=-mx+b (p = -(m * t) + b)
-        uint256 m = priceDelta.mul(1e18).div(tDelta);
-        uint256 b = c.add(m.mul(s).div(1e18));
-        p = b.sub(m.mul(t).div(1e18));
+        uint256 b = f + ((m * e) / 1e18);
+        p = b - ((m * t) / 1e18);
+    }
+
+    function _calulateAbsoluteDecay(
+        uint256 c,
+        uint256 f,
+        uint256 s,
+        uint256 e
+    ) internal pure returns (uint256) {
+        require(e > s, "invalid-ramp");
+        require(c >= f, "price-not-descending-or-const");
+        return ((c - f) * 1e18) / (e - s);
     }
 
     function createCollection() external override returns (uint256) {
