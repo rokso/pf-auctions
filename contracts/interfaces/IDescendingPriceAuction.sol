@@ -24,6 +24,8 @@ struct DPA {
     uint256 endBlock;
     bool stopped;
     address winner;
+    uint256 winningBlock;
+    uint256 winningPrice;
     address[] tokens;
     uint256[] tokenAmounts;
 }
@@ -39,6 +41,8 @@ interface IDescendingPriceAuction {
         address paymentToken,
         address winner
     );
+
+    function getAuction(uint256 _id) external view returns (DPA memory);
 
     function totalAuctions() external view returns (uint256);
 
@@ -58,7 +62,9 @@ interface IDescendingPriceAuction {
         view
         returns (uint256);
 
-    function createAuction(DPAConfig memory _auction) external;
+    function createAuction(DPAConfig memory _auction)
+        external
+        returns (uint256);
 
     function stopAuction(uint256 _id) external;
 

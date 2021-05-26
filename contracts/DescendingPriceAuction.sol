@@ -16,7 +16,7 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
     using EnumerableSet for EnumerableSet.UintSet;
     using EnumerableMap for EnumerableMap.UintToAddressMap;
 
-    mapping(uint256 => DPA) public auctions;
+    mapping(uint256 => DPA) private auctions;
     EnumerableMap.UintToAddressMap private collections;
     EnumerableMap.UintToAddressMap private auctioneers;
     Counters.Counter private collectionCount;
@@ -54,6 +54,15 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
             require(_msgSender() == owner, "caller-not-collection-owner");
         }
         _;
+    }
+
+    function getAuction(uint256 _id)
+        external
+        view
+        override
+        returns (DPA memory)
+    {
+        return auctions[_id];
     }
 
     function totalAuctions() external view override returns (uint256) {
@@ -115,6 +124,7 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         external
         override
         onlyCollectionOwner(_auction.collectionId)
+        returns (uint256)
     {
         require(_auction.endBlock > block.number, "end-block-passed");
         require(_auction.ceiling != 0, "start-price-zero");
@@ -127,10 +137,13 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
             "improper-line-items"
         );
         require(_auction.tokens.length < 8, "too-many-line-items");
-        _createAuction(_auction);
+        return _createAuction(_auction);
     }
 
-    function _createAuction(DPAConfig memory _auction) internal {
+    function _createAuction(DPAConfig memory _auction)
+        internal
+        returns (uint256)
+    {
         _pullTokens(_auction.tokens, _auction.tokenAmounts);
         uint256 id = auctionCount.current();
         uint256 decay =
@@ -151,6 +164,8 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
             endBlock: _auction.endBlock,
             stopped: false,
             winner: address(0x0),
+            winningBlock: 0,
+            winningPrice: 0,
             tokens: _auction.tokens,
             tokenAmounts: _auction.tokenAmounts
         });
@@ -160,6 +175,7 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         _byColl[_auction.collectionId].add(id);
         auctionCount.increment();
         emit AuctionCreated(id, _auction.collectionId, neer);
+        return id;
     }
 
     function _pullTokens(address[] memory tokens, uint256[] memory amounts)
@@ -214,6 +230,8 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         _sendTokens(bidder, auction.tokens, auction.tokenAmounts);
         auction.stopped = true;
         auction.winner = bidder;
+        auction.winningBlock = block.number;
+        auction.winningPrice = price;
         auctions[_id] = auction;
         emit AuctionWon(_id, price, auction.paymentToken, bidder);
     }
