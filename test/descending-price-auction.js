@@ -78,7 +78,7 @@ describe('Descending Price Auction', function () {
     it('Should stop an auction and return tokens', async function () {
       const id = 1
       await dpa.stopAuction(id)
-      const auction = await dpa.auctions(id)
+      const auction = await dpa.getAuction(id)
       expect(auction.stopped).to.be.true
       let tstBal = await testToken.balanceOf(signers[0].address)
       expect(tstBal).to.equal(ethers.BigNumber.from('100000000000000000000'))
@@ -115,7 +115,7 @@ describe('Descending Price Auction', function () {
       testAuction.collectionId = 1
       const ta = await dpa.totalAuctions()
       await dpa.createAuction(testAuction)
-      const auction = await dpa.auctions(ta.add(1))
+      const auction = await dpa.getAuction(ta.add(1))
       expect(auction.collectionId).to.equal(1)
     })
 
@@ -140,7 +140,7 @@ describe('Descending Price Auction', function () {
       expect(collectionLength).to.equal(4)
       for (let i = 0; i < collectionLength; i++) {
         const aId = await dpa.auctionOfCollByIndex(cId, i)
-        const auction = await dpa.auctions(aId)
+        const auction = await dpa.getAuction(aId)
         expect(auction.collectionId).to.equal(cId)
       }
     })
@@ -164,7 +164,7 @@ describe('Descending Price Auction', function () {
       expect(neerGroupLength).to.equal(4)
       for (let i = 0; i < neerGroupLength; i++) {
         const aId = await dpa.auctionOfNeerByIndex(signers[0].address, i)
-        const auction = await dpa.auctions(aId)
+        const auction = await dpa.getAuction(aId)
         expect(auction.collectionId).to.equal(0)
       }
     })
@@ -188,9 +188,11 @@ describe('Descending Price Auction', function () {
       await dpa.createAuction(testAuction)
       const dpaUserOne = dpa.connect(signers[1])
       await dpaUserOne.bid(1)
-      const auction = await dpa.auctions(1)
+      const auction = await dpa.getAuction(1)
       expect(auction.stopped).to.be.true
       expect(auction.winner).to.equal(signers[1].address)
+      expect(auction.winningBlock).to.be.gt(0)
+      expect(auction.winningPrice).to.be.gt(0)
       const ownerBalAfter = await testToken.balanceOf(signers[0].address)
       const bidderBalAfter = await testToken.balanceOf(signers[1].address)
       expect(ownerBalAfter.add(bidderBalAfter)).to.equal(
