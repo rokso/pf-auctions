@@ -186,9 +186,9 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         }
     }
 
-    function _pullToken(address token, uint256 amount) internal {
-        require(amount != 0, "invalid-token-amount");
-        IERC20(token).safeTransferFrom(_msgSender(), address(this), amount);
+    function _pullToken(address _token, uint256 _amount) internal {
+        require(_amount != 0, "invalid-token-amount");
+        _safeTransferFromExact(_token, _msgSender(), address(this), _amount);
     }
 
     function _sendTokens(
@@ -217,7 +217,6 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         DPA memory auction = auctions[_id];
         require(auction.winner == address(0x0), "auction-has-ended");
         require(!auction.stopped, "auction-has-been-stopped");
-        IERC20 paymentToken = IERC20(auction.paymentToken);
         uint256 price =
             _getCurrentPrice(
                 auction.absoluteDecay,
@@ -226,7 +225,12 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
                 block.number
             );
         address bidder = _msgSender();
-        paymentToken.safeTransferFrom(bidder, auction.payee, price);
+        _safeTransferFromExact(
+            auction.paymentToken,
+            bidder,
+            auction.payee,
+            price
+        );
         _sendTokens(bidder, auction.tokens, auction.tokenAmounts);
         auction.stopped = true;
         auction.winner = bidder;
@@ -275,6 +279,21 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         require(e > s, "invalid-ramp");
         require(c >= f, "price-not-descending-or-const");
         return ((c - f) * 1e18) / (e - s);
+    }
+
+    function _safeTransferFromExact(
+        address _token,
+        address _from,
+        address _to,
+        uint256 _amount
+    ) internal {
+        IERC20 token = IERC20(_token);
+        uint256 before = token.balanceOf(_to);
+        token.safeTransferFrom(_from, _to, _amount);
+        require(
+            token.balanceOf(_to) - before == _amount,
+            "not-enough-transferred"
+        );
     }
 
     function createCollection() external override returns (uint256) {
