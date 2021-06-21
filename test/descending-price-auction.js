@@ -5,7 +5,7 @@ const { ethers, waffle } = require('hardhat')
 const provider = waffle.provider
 
 describe('Descending Price Auction', function () {
-  let signers, dpa, testToken, testAuction
+  let signers, dpa, testToken, testAuction, badTestToken, badTestAuction
 
   beforeEach(async function () {
     // Accounts
@@ -17,6 +17,8 @@ describe('Descending Price Auction', function () {
       'OzERC20PresetMinterPauser',
       signers[0]
     )
+
+    // Standard ERC20 Token
     testToken = await TestToken.deploy('Test', 'TST')
     await testToken.deployed()
     await testToken.mint(
@@ -25,6 +27,17 @@ describe('Descending Price Auction', function () {
     )
     await testToken.mint(
       signers[1].address,
+      ethers.BigNumber.from('100000000000000000000')
+    )
+
+    // ERC20 in which transferfrom will always send something even if amount exceeds approved amount
+    const BadTestToken = await ethers.getContractFactory('BadERC20', signers[0])
+    badTestToken = await BadTestToken.deploy('Bad', 'BAD')
+
+    await badTestToken.deployed()
+
+    await badTestToken.mint(
+      signers[0].address,
       ethers.BigNumber.from('100000000000000000000')
     )
 
@@ -39,6 +52,17 @@ describe('Descending Price Auction', function () {
       payee: signers[0].address,
       endBlock: (await provider.getBlockNumber()) + 20,
       tokens: [testToken.address],
+      tokenAmounts: [ethers.BigNumber.from('50000000000000000000')]
+    }
+
+    badTestAuction = {
+      ceiling: ethers.BigNumber.from('20000000000000000000'),
+      floor: ethers.BigNumber.from('10000000000000000000'),
+      collectionId: 0,
+      paymentToken: testToken.address,
+      payee: signers[0].address,
+      endBlock: (await provider.getBlockNumber()) + 20,
+      tokens: [badTestToken.address],
       tokenAmounts: [ethers.BigNumber.from('50000000000000000000')]
     }
   })
@@ -57,6 +81,16 @@ describe('Descending Price Auction', function () {
       expect(ts).to.equal(1)
       const tstBal = await testToken.balanceOf(signers[0].address)
       expect(tstBal).to.equal(ethers.BigNumber.from('50000000000000000000'))
+    })
+
+    it('Should fail create an auction when it receives the wrong amount of tokens', async function () {
+      await badTestToken.approve(
+        dpa.address,
+        ethers.BigNumber.from('40000000000000000000')
+      )
+      await expect(dpa.createAuction(badTestAuction)).to.be.revertedWith(
+        'not-enough-transferred'
+      )
     })
 
     it('Should fail create an auction when tokens will not escrow', async function () {
