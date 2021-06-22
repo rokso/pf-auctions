@@ -14,6 +14,7 @@ struct DPAConfig {
 }
 
 struct DPA {
+    uint256 id;
     uint256 ceiling;
     uint256 floor;
     uint256 absoluteDecay;
