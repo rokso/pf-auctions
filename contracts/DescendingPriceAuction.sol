@@ -154,6 +154,7 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
                 _auction.endBlock
             );
         auctions[id] = DPA({
+            id: id,
             ceiling: _auction.ceiling,
             floor: _auction.floor,
             absoluteDecay: decay,
