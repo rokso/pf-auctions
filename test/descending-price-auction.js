@@ -5,7 +5,14 @@ const { ethers, waffle } = require('hardhat')
 const provider = waffle.provider
 
 describe('Descending Price Auction', function () {
-  let signers, dpa, testToken, testAuction, badTestToken, badTestAuction
+  let signers,
+    dpa,
+    testToken,
+    testAuction,
+    badTestToken,
+    badTestAuction,
+    reallyBadTestAuction,
+    badReentrantTestToken
 
   beforeEach(async function () {
     // Accounts
@@ -33,6 +40,11 @@ describe('Descending Price Auction', function () {
     // ERC20 in which transferfrom will always send something even if amount exceeds approved amount
     const BadTestToken = await ethers.getContractFactory('BadERC20', signers[0])
     badTestToken = await BadTestToken.deploy('Bad', 'BAD')
+    const BadReentrantTestToken = await ethers.getContractFactory(
+      'BadReentrantERC20',
+      signers[1]
+    )
+    badReentrantTestToken = await BadReentrantTestToken.deploy('Liar', 'LIAR')
 
     await badTestToken.deployed()
 
@@ -63,6 +75,17 @@ describe('Descending Price Auction', function () {
       payee: signers[0].address,
       endBlock: (await provider.getBlockNumber()) + 20,
       tokens: [badTestToken.address],
+      tokenAmounts: [ethers.BigNumber.from('50000000000000000000')]
+    }
+
+    reallyBadTestAuction = {
+      ceiling: ethers.BigNumber.from('20000000000000000000'),
+      floor: ethers.BigNumber.from('10000000000000000000'),
+      collectionId: 0,
+      paymentToken: badReentrantTestToken.address,
+      payee: signers[0].address,
+      endBlock: (await provider.getBlockNumber()) + 20,
+      tokens: [testToken.address],
       tokenAmounts: [ethers.BigNumber.from('50000000000000000000')]
     }
   })
@@ -273,7 +296,7 @@ describe('Descending Price Auction', function () {
       let t = 125
       const absDecay = await dpa.calcAbsDecayTest(c, f, s, e)
       let p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
-      expect(p).to.equal('38')
+      expect(p).to.equal('37')
       t = 150
       p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal('35')
@@ -307,7 +330,7 @@ describe('Descending Price Auction', function () {
       let t = 125
       const absDecay = await dpa.calcAbsDecayTest(c, f, s, e)
       let p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
-      expect(p).to.equal('833334')
+      expect(p).to.equal('833333')
       t = 150
       p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal('555556')
@@ -353,6 +376,23 @@ describe('Descending Price Auction', function () {
       const absDecay = await dpa.calcAbsDecayTest(c, f, s, e)
       const p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
       expect(p).to.equal(c)
+    })
+  })
+
+  describe('Reentrancy', function () {
+    it('Should not be reenterable', async function () {
+      await testToken.approve(
+        dpa.address,
+        ethers.BigNumber.from('50000000000000000000')
+      )
+      await testToken
+        .connect(signers[1])
+        .approve(dpa.address, ethers.BigNumber.from('50000000000000000000'))
+      await dpa.createAuction(testAuction)
+      await dpa.connect(signers[1]).createAuction(reallyBadTestAuction)
+      const aId = await dpa.totalAuctions()
+      const tx = dpa.connect(signers[1]).bid(aId)
+      await expect(tx).to.be.revertedWith('ReentrancyGuard: reentrant call')
     })
   })
 })
