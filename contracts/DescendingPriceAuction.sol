@@ -3,6 +3,7 @@
 pragma solidity 0.8.3;
 pragma experimental ABIEncoderV2;
 
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableMap.sol";
@@ -10,7 +11,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IDescendingPriceAuction.sol";
 
-contract DescendingPriceAuction is IDescendingPriceAuction {
+contract DescendingPriceAuction is IDescendingPriceAuction, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using Counters for Counters.Counter;
     using EnumerableSet for EnumerableSet.UintSet;
@@ -124,6 +125,7 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         external
         override
         onlyCollectionOwner(_auction.collectionId)
+        nonReentrant
         returns (uint256)
     {
         require(_auction.endBlock > block.number, "end-block-passed");
@@ -202,20 +204,25 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         }
     }
 
-    function stopAuction(uint256 _id) external override onlyAuctioneer(_id) {
-        DPA memory auction = auctions[_id];
+    function stopAuction(uint256 _id)
+        external
+        override
+        onlyAuctioneer(_id)
+        nonReentrant
+    {
+        DPA storage auction = auctions[_id];
         require(
             auction.winner == address(0x0) && !auction.stopped,
             "cant-be-stopped"
         );
-        _sendTokens(auctioneers.get(_id), auction.tokens, auction.tokenAmounts);
+        _sendTokens(_msgSender(), auction.tokens, auction.tokenAmounts);
         auctions[_id].stopped = true;
         emit AuctionStopped(_id);
     }
 
-    function bid(uint256 _id) external override {
+    function bid(uint256 _id) external override nonReentrant {
         require(_auctionExists(_id), "no-such-auction-id");
-        DPA memory auction = auctions[_id];
+        DPA storage auction = auctions[_id];
         require(auction.winner == address(0x0), "auction-has-ended");
         require(!auction.stopped, "auction-has-been-stopped");
         uint256 price =
@@ -248,7 +255,7 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         returns (uint256)
     {
         require(_auctionExists(_id), "no-such-auction-id");
-        DPA memory a = auctions[_id];
+        DPA storage a = auctions[_id];
         return
             _getCurrentPrice(
                 a.absoluteDecay,
@@ -266,9 +273,8 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
     ) internal pure returns (uint256 p) {
         if (t > e) return f;
         if (m == 0) return f;
-        // we know m is actually negative, so we're solving y=-mx+b (p = -(m * t) + b)
-        uint256 b = f + ((m * e) / 1e18);
-        p = b - ((m * t) / 1e18);
+        // compute price starting from floor
+        p = f + (m * (e - t)) / 1e18;
     }
 
     function _calulateAbsoluteDecay(
@@ -297,7 +303,12 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         );
     }
 
-    function createCollection() external override returns (uint256) {
+    function createCollection()
+        external
+        override
+        nonReentrant
+        returns (uint256)
+    {
         uint256 id = collectionCount.current();
         address owner = _msgSender();
         collections.set(id, owner);
@@ -310,6 +321,7 @@ contract DescendingPriceAuction is IDescendingPriceAuction {
         external
         override
         onlyCollectionOwner(_id)
+        nonReentrant
     {
         collections.set(_id, _to);
         emit CollectionTransfer(_id, _msgSender(), _to);
