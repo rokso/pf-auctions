@@ -16,7 +16,9 @@
     "lint:fix": "eslint --fix ./test --ext .js",
     "solhint": "solhint './contracts/**/*.sol'",
     "solhint:fix": "prettier --write 'contracts/**/*.sol'",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "deploy": "hardhat deploy",
+    "verify": "hardhat etherscan-verify"
   },
   "author": "BLOQ",
   "license": "MIT",
@@ -46,6 +48,7 @@
     "eslint-plugin-standard": "5.0.0",
     "hardhat-contract-sizer": "^2.0.3",
     "husky": "^6.0.0",
+    "hardhat-deploy": "^0.7.9",
     "prettier-plugin-solidity": "^1.0.0-alpha.54",
     "solhint": "^3.3.5",
     "solhint-plugin-prettier": "0.0.5",
