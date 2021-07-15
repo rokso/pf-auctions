@@ -8,7 +8,7 @@ require('hardhat-contract-sizer')
 require('solidity-coverage')
 require('hardhat-deploy')
 
-const gasPrice = 55000000000
+const gasPrice = 35000000000
 
 module.exports = {
   defaultNetwork: 'hardhat',
@@ -23,7 +23,8 @@ module.exports = {
     mainnet: {
       url: process.env.NODE_URL,
       chainId: 1,
-      gasPrice
+      gasPrice,
+      accounts: [process.env.PRIVATE_KEY]
     }
   },
   paths: {
@@ -48,5 +49,8 @@ module.exports = {
   },
   mocha: {
     timeout: 200000
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN || 0
   }
 }
