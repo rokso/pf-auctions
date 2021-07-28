@@ -32,15 +32,19 @@ struct DPA {
 }
 
 interface IDescendingPriceAuction {
-    event AuctionCreated(uint256 id, uint256 collectionId, address auctioneer);
+    event AuctionCreated(
+        uint256 indexed id,
+        uint256 indexed collectionId,
+        address indexed auctioneer
+    );
     event CollectionCreated(uint256 id, address owner);
     event CollectionTransfer(uint256 id, address from, address to);
-    event AuctionStopped(uint256 id);
+    event AuctionStopped(uint256 indexed id, uint256 price);
     event AuctionWon(
-        uint256 id,
+        uint256 indexed id,
         uint256 price,
         address paymentToken,
-        address winner
+        address indexed winner
     );
 
     function getAuction(uint256 _id) external view returns (DPA memory);

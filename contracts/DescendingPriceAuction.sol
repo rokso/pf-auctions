@@ -217,7 +217,15 @@ contract DescendingPriceAuction is IDescendingPriceAuction, ReentrancyGuard {
         );
         _sendTokens(_msgSender(), auction.tokens, auction.tokenAmounts);
         auctions[_id].stopped = true;
-        emit AuctionStopped(_id);
+        emit AuctionStopped(
+            _id,
+            _getCurrentPrice(
+                auction.absoluteDecay,
+                auction.floor,
+                auction.endBlock,
+                block.number
+            )
+        );
     }
 
     function bid(uint256 _id) external override nonReentrant {
