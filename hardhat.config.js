@@ -13,7 +13,14 @@ const gasPrice = 35000000000
 module.exports = {
   defaultNetwork: 'hardhat',
   networks: {
-    hardhat: {},
+    hardhat: {
+      forking: {
+        url: process.env.NODE_URL,
+        blockNumber: process.env.BLOCK_NUMBER
+          ? parseInt(process.env.BLOCK_NUMBER)
+          : undefined
+      }
+    },
     localhost: {
       saveDeployments: true
     },
