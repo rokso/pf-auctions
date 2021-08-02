@@ -17,8 +17,8 @@
     "solhint": "solhint './contracts/**/*.sol'",
     "solhint:fix": "prettier --write 'contracts/**/*.sol'",
     "prepare": "husky install",
-    "deploy": "hardhat deploy",
-    "verify": "hardhat etherscan-verify"
+    "deploy": "npx hardhat deploy",
+    "verify": "npx hardhat etherscan-verify"
   },
   "author": "BLOQ",
   "license": "MIT",
