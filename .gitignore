@@ -5,4 +5,5 @@ artifacts
 coverage/
 coverage.json
 typechain*
+deployments/localhost*
 .env
