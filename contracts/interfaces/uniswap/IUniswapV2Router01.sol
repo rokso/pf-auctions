@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.3;
+pragma solidity 0.8.9;
 
 interface IUniswapV2Router01 {
     function factory() external pure returns (address);
@@ -51,11 +51,7 @@ interface IUniswapV2Router01 {
         uint256 deadline
     ) external payable returns (uint256[] memory amounts);
 
-    function quote(
-        uint256 amountA,
-        uint256 reserveA,
-        uint256 reserveB
-    ) external pure returns (uint256 amountB);
+    function quote(uint256 amountA, uint256 reserveA, uint256 reserveB) external pure returns (uint256 amountB);
 
     function getAmountOut(
         uint256 amountIn,
@@ -69,13 +65,7 @@ interface IUniswapV2Router01 {
         uint256 reserveOut
     ) external pure returns (uint256 amountIn);
 
-    function getAmountsOut(uint256 amountIn, address[] calldata path)
-        external
-        view
-        returns (uint256[] memory amounts);
+    function getAmountsOut(uint256 amountIn, address[] calldata path) external view returns (uint256[] memory amounts);
 
-    function getAmountsIn(uint256 amountOut, address[] calldata path)
-        external
-        view
-        returns (uint256[] memory amounts);
+    function getAmountsIn(uint256 amountOut, address[] calldata path) external view returns (uint256[] memory amounts);
 }

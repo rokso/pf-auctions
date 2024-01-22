@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.3;
+pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../interfaces/IDescendingPriceAuction.sol";
-import "../interfaces/uniswap/IUniswapV2Pair.sol";
-import "../interfaces/uniswap/IUniswapV2Router01.sol";
-import "hardhat/console.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IDescendingPriceAuction} from "../interfaces/IDescendingPriceAuction.sol";
+import {IUniswapV2Pair} from "../interfaces/uniswap/IUniswapV2Pair.sol";
+import {IUniswapV2Router01} from "../interfaces/uniswap/IUniswapV2Router01.sol";
+// solhint-disable-next-line no-console
+import {console} from "hardhat/console.sol";
 
 contract FlashBidder {
     address internal constant FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
@@ -14,6 +15,7 @@ contract FlashBidder {
     address internal constant VSP = 0x1b40183EFB4Dd766f11bDa7A7c3AD8982e998421;
     address internal constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address internal constant VSPWETH = 0x6D7B6DaD6abeD1DFA5eBa37a6667bA9DCFD49077;
+    // solhint-disable-next-line immutable-vars-naming
     IDescendingPriceAuction internal immutable auctionHouse;
     uint256 public tempAuctionId;
 
@@ -32,7 +34,7 @@ contract FlashBidder {
     }
 
     /* solhint-disable */
-    function uniswapV2Call(address sender, uint256 amount0, uint256 amount1, bytes calldata data) external {
+    function uniswapV2Call(address sender, uint256 amount0, uint256, bytes calldata) external {
         require(sender == address(this), "incorrect-origin");
         require(msg.sender == VSPWETH, "incorrect-sender");
         address[] memory path = new address[](2);

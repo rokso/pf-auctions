@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.3;
-pragma experimental ABIEncoderV2;
+pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/utils/structs/EnumerableMap.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "./interfaces/IDescendingPriceAuction.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import {EnumerableMap} from "@openzeppelin/contracts/utils/structs/EnumerableMap.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IDescendingPriceAuction} from "./interfaces/IDescendingPriceAuction.sol";
 
+// solhint-disable custom-errors
 contract DescendingPriceAuction is IDescendingPriceAuction, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using Counters for Counters.Counter;
@@ -57,12 +57,7 @@ contract DescendingPriceAuction is IDescendingPriceAuction, ReentrancyGuard {
         _;
     }
 
-    function getAuction(uint256 _id)
-        external
-        view
-        override
-        returns (DPA memory)
-    {
+    function getAuction(uint256 _id) external view override returns (DPA memory) {
         return auctions[_id];
     }
 
@@ -74,87 +69,46 @@ contract DescendingPriceAuction is IDescendingPriceAuction, ReentrancyGuard {
         return collections.length();
     }
 
-    function collectionLength(uint256 _id)
-        external
-        view
-        override
-        returns (uint256)
-    {
+    function collectionLength(uint256 _id) external view override returns (uint256) {
         return _byColl[_id].length();
     }
 
-    function neerGroupLength(address _neer)
-        external
-        view
-        override
-        returns (uint256)
-    {
+    function neerGroupLength(address _neer) external view override returns (uint256) {
         return _byNeer[_neer].length();
     }
 
     // return AuctionId
-    function auctionOfNeerByIndex(address _neer, uint256 i)
-        external
-        view
-        override
-        returns (uint256)
-    {
+    function auctionOfNeerByIndex(address _neer, uint256 i) external view override returns (uint256) {
         return _byNeer[_neer].at(i);
     }
 
     // return AuctionId
-    function auctionOfCollByIndex(uint256 _id, uint256 i)
-        external
-        view
-        override
-        returns (uint256)
-    {
+    function auctionOfCollByIndex(uint256 _id, uint256 i) external view override returns (uint256) {
         return _byColl[_id].at(i);
     }
 
-    function _auctionExists(uint256 _auctionId)
-        internal
-        view
-        virtual
-        returns (bool)
-    {
+    function _auctionExists(uint256 _auctionId) internal view virtual returns (bool) {
         return auctioneers.contains(_auctionId);
     }
 
-    function createAuction(DPAConfig memory _auction)
-        external
-        override
-        onlyCollectionOwner(_auction.collectionId)
-        nonReentrant
-        returns (uint256)
-    {
+    function createAuction(
+        DPAConfig memory _auction
+    ) external override onlyCollectionOwner(_auction.collectionId) nonReentrant returns (uint256) {
         require(_auction.endBlock > block.number, "end-block-passed");
         require(_auction.ceiling != 0, "start-price-zero");
         require(_auction.ceiling >= _auction.floor, "invalid-pricing");
         require(_auction.paymentToken != address(0x0), "invalid-payment-token");
         require(_auction.payee != address(0x0), "invalid-payee");
         require(_auction.tokens.length != 0, "no-line-items");
-        require(
-            _auction.tokens.length == _auction.tokenAmounts.length,
-            "improper-line-items"
-        );
+        require(_auction.tokens.length == _auction.tokenAmounts.length, "improper-line-items");
         require(_auction.tokens.length < 8, "too-many-line-items");
         return _createAuction(_auction);
     }
 
-    function _createAuction(DPAConfig memory _auction)
-        internal
-        returns (uint256)
-    {
+    function _createAuction(DPAConfig memory _auction) internal returns (uint256) {
         _pullTokens(_auction.tokens, _auction.tokenAmounts);
         uint256 id = auctionCount.current();
-        uint256 decay =
-            _calulateAbsoluteDecay(
-                _auction.ceiling,
-                _auction.floor,
-                block.number,
-                _auction.endBlock
-            );
+        uint256 decay = _calulateAbsoluteDecay(_auction.ceiling, _auction.floor, block.number, _auction.endBlock);
         auctions[id] = DPA({
             id: id,
             ceiling: _auction.ceiling,
@@ -181,9 +135,7 @@ contract DescendingPriceAuction is IDescendingPriceAuction, ReentrancyGuard {
         return id;
     }
 
-    function _pullTokens(address[] memory tokens, uint256[] memory amounts)
-        internal
-    {
+    function _pullTokens(address[] memory tokens, uint256[] memory amounts) internal {
         for (uint256 i = 0; i < tokens.length; i++) {
             _pullToken(tokens[i], amounts[i]);
         }
@@ -194,37 +146,20 @@ contract DescendingPriceAuction is IDescendingPriceAuction, ReentrancyGuard {
         _safeTransferFromExact(_token, _msgSender(), address(this), _amount);
     }
 
-    function _sendTokens(
-        address recipient,
-        address[] memory tokens,
-        uint256[] memory amounts
-    ) internal {
+    function _sendTokens(address recipient, address[] memory tokens, uint256[] memory amounts) internal {
         for (uint256 i = 0; i < tokens.length; i++) {
             IERC20(tokens[i]).safeTransfer(recipient, amounts[i]);
         }
     }
 
-    function stopAuction(uint256 _id)
-        external
-        override
-        onlyAuctioneer(_id)
-        nonReentrant
-    {
+    function stopAuction(uint256 _id) external override onlyAuctioneer(_id) nonReentrant {
         DPA storage auction = auctions[_id];
-        require(
-            auction.winner == address(0x0) && !auction.stopped,
-            "cant-be-stopped"
-        );
+        require(auction.winner == address(0x0) && !auction.stopped, "cant-be-stopped");
         _sendTokens(_msgSender(), auction.tokens, auction.tokenAmounts);
         auctions[_id].stopped = true;
         emit AuctionStopped(
             _id,
-            _getCurrentPrice(
-                auction.absoluteDecay,
-                auction.floor,
-                auction.endBlock,
-                block.number
-            )
+            _getCurrentPrice(auction.absoluteDecay, auction.floor, auction.endBlock, block.number)
         );
     }
 
@@ -233,20 +168,9 @@ contract DescendingPriceAuction is IDescendingPriceAuction, ReentrancyGuard {
         DPA storage auction = auctions[_id];
         require(auction.winner == address(0x0), "auction-has-ended");
         require(!auction.stopped, "auction-has-been-stopped");
-        uint256 price =
-            _getCurrentPrice(
-                auction.absoluteDecay,
-                auction.floor,
-                auction.endBlock,
-                block.number
-            );
+        uint256 price = _getCurrentPrice(auction.absoluteDecay, auction.floor, auction.endBlock, block.number);
         address bidder = _msgSender();
-        _safeTransferFromExact(
-            auction.paymentToken,
-            bidder,
-            auction.payee,
-            price
-        );
+        _safeTransferFromExact(auction.paymentToken, bidder, auction.payee, price);
         _sendTokens(bidder, auction.tokens, auction.tokenAmounts);
         auction.stopped = true;
         auction.winner = bidder;
@@ -256,67 +180,33 @@ contract DescendingPriceAuction is IDescendingPriceAuction, ReentrancyGuard {
         emit AuctionWon(_id, price, auction.paymentToken, bidder);
     }
 
-    function getCurrentPrice(uint256 _id)
-        external
-        view
-        override
-        returns (uint256)
-    {
+    function getCurrentPrice(uint256 _id) external view override returns (uint256) {
         require(_auctionExists(_id), "no-such-auction-id");
         DPA storage a = auctions[_id];
-        return
-            _getCurrentPrice(
-                a.absoluteDecay,
-                a.floor,
-                a.endBlock,
-                block.number
-            );
+        return _getCurrentPrice(a.absoluteDecay, a.floor, a.endBlock, block.number);
     }
 
-    function _getCurrentPrice(
-        uint256 m,
-        uint256 f,
-        uint256 e,
-        uint256 t
-    ) internal pure returns (uint256 p) {
+    function _getCurrentPrice(uint256 m, uint256 f, uint256 e, uint256 t) internal pure returns (uint256 p) {
         if (t > e) return f;
         if (m == 0) return f;
         // compute price starting from floor
         p = f + (m * (e - t)) / 1e18;
     }
 
-    function _calulateAbsoluteDecay(
-        uint256 c,
-        uint256 f,
-        uint256 s,
-        uint256 e
-    ) internal pure returns (uint256) {
+    function _calulateAbsoluteDecay(uint256 c, uint256 f, uint256 s, uint256 e) internal pure returns (uint256) {
         require(e > s, "invalid-ramp");
         require(c >= f, "price-not-descending-or-const");
         return ((c - f) * 1e18) / (e - s);
     }
 
-    function _safeTransferFromExact(
-        address _token,
-        address _from,
-        address _to,
-        uint256 _amount
-    ) internal {
+    function _safeTransferFromExact(address _token, address _from, address _to, uint256 _amount) internal {
         IERC20 token = IERC20(_token);
         uint256 before = token.balanceOf(_to);
         token.safeTransferFrom(_from, _to, _amount);
-        require(
-            token.balanceOf(_to) - before == _amount,
-            "not-enough-transferred"
-        );
+        require(token.balanceOf(_to) - before == _amount, "not-enough-transferred");
     }
 
-    function createCollection()
-        external
-        override
-        nonReentrant
-        returns (uint256)
-    {
+    function createCollection() external override nonReentrant returns (uint256) {
         uint256 id = collectionCount.current();
         address owner = _msgSender();
         collections.set(id, owner);
@@ -325,12 +215,7 @@ contract DescendingPriceAuction is IDescendingPriceAuction, ReentrancyGuard {
         return id;
     }
 
-    function transferCollection(address _to, uint256 _id)
-        external
-        override
-        onlyCollectionOwner(_id)
-        nonReentrant
-    {
+    function transferCollection(address _to, uint256 _id) external override onlyCollectionOwner(_id) nonReentrant {
         collections.set(_id, _to);
         emit CollectionTransfer(_id, _msgSender(), _to);
     }

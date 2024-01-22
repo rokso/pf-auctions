@@ -2,8 +2,7 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers'
 import { time, setBalance } from '@nomicfoundation/hardhat-network-helpers'
-import { DPAMock, FlashBidder, IERC20, IVesperPool, TokenLike } from '../typechain-types'
-import { DPAConfigStruct } from '../typechain-types/contracts/DescendingPriceAuction'
+import { DPAMock, FlashBidder, IDescendingPriceAuction, IERC20, IVesperPool, TokenLike } from '../typechain-types'
 
 const MAINNET_DPA = '0xeDceB6D349dEcb675BD4dDC90b5A05e3f813B56D'
 const VSP = '0x1b40183efb4dd766f11bda7a7c3ad8982e998421'
@@ -13,7 +12,7 @@ const WETH = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 const VUSDC = '0x0C49066C0808Ee8c673553B7cbd99BCC9ABf113d'
 
 describe('Descending Price Auction Deployment Test', function () {
-  let dpa: DPAMock, vsp: IERC20, vusdc: IVesperPool, testAuction: DPAConfigStruct
+  let dpa: DPAMock, vsp: IERC20, vusdc: IVesperPool, testAuction: IDescendingPriceAuction.DPAConfigStruct
   let weth: TokenLike, flash: FlashBidder
   let alice: SignerWithAddress, bob: SignerWithAddress
   let dpaAddress: string

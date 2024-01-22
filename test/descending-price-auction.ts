@@ -3,13 +3,20 @@ import { ethers } from 'hardhat'
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 
-import { BadERC20, BadReentrantERC20, DPAMock, OzERC20PresetMinterPauser } from '../typechain-types'
-import { DPAConfigStruct } from '../typechain-types/contracts/DescendingPriceAuction'
+import {
+  BadERC20,
+  BadReentrantERC20,
+  DPAMock,
+  IDescendingPriceAuction,
+  OzERC20PresetMinterPauser,
+} from '../typechain-types'
 
 describe('Descending Price Auction', function () {
   let dpa: DPAMock, testToken: OzERC20PresetMinterPauser
   let badTestToken: BadERC20, badReentrantTestToken: BadReentrantERC20
-  let testAuction: DPAConfigStruct, badTestAuction: DPAConfigStruct, reallyBadTestAuction: DPAConfigStruct
+  let testAuction: IDescendingPriceAuction.DPAConfigStruct,
+    badTestAuction: IDescendingPriceAuction.DPAConfigStruct,
+    reallyBadTestAuction: IDescendingPriceAuction.DPAConfigStruct
   let alice: SignerWithAddress, owner: SignerWithAddress
   let dpaAddress: string
 
