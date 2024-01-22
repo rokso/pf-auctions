@@ -1,134 +1,107 @@
-'use strict'
+import { expect } from 'chai'
+import { ethers } from 'hardhat'
+import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers'
+import { time } from '@nomicfoundation/hardhat-network-helpers'
 
-const { expect } = require('chai')
-const { ethers, waffle } = require('hardhat')
-const provider = waffle.provider
+import { BadERC20, BadReentrantERC20, DPAMock, OzERC20PresetMinterPauser } from '../typechain-types'
+import { DPAConfigStruct } from '../typechain-types/contracts/DescendingPriceAuction'
 
 describe('Descending Price Auction', function () {
-  let signers,
-    dpa,
-    testToken,
-    testAuction,
-    badTestToken,
-    badTestAuction,
-    reallyBadTestAuction,
-    badReentrantTestToken
+  let dpa: DPAMock, testToken: OzERC20PresetMinterPauser
+  let badTestToken: BadERC20, badReentrantTestToken: BadReentrantERC20
+  let testAuction: DPAConfigStruct, badTestAuction: DPAConfigStruct, reallyBadTestAuction: DPAConfigStruct
+  let alice: SignerWithAddress, owner: SignerWithAddress
+  let dpaAddress: string
+
+  before(async function () {
+    // eslint-disable-next-line no-extra-semi
+    ;[owner, alice] = await ethers.getSigners()
+  })
 
   beforeEach(async function () {
-    // Accounts
-    signers = await ethers.getSigners()
     // Deploy Register
-    const DPA = await ethers.getContractFactory('DPAMock', signers[0])
+    const DPA = await ethers.getContractFactory('DPAMock', owner)
 
-    const TestToken = await ethers.getContractFactory(
-      'OzERC20PresetMinterPauser',
-      signers[0]
-    )
+    const TestToken = await ethers.getContractFactory('OzERC20PresetMinterPauser', owner)
 
     // Standard ERC20 Token
     testToken = await TestToken.deploy('Test', 'TST')
-    await testToken.deployed()
-    await testToken.mint(
-      signers[0].address,
-      ethers.BigNumber.from('100000000000000000000')
-    )
-    await testToken.mint(
-      signers[1].address,
-      ethers.BigNumber.from('100000000000000000000')
-    )
+    const testTokenAddress = await testToken.getAddress()
+    await testToken.waitForDeployment()
+    await testToken.mint(owner.address, ethers.parseEther('100'))
+    await testToken.mint(alice.address, ethers.parseEther('100'))
 
-    // ERC20 in which transferfrom will always send something even if amount exceeds approved amount
-    const BadTestToken = await ethers.getContractFactory('BadERC20', signers[0])
+    // ERC20 in which transferFrom will always send something even if amount exceeds approved amount
+    const BadTestToken = await ethers.getContractFactory('BadERC20', owner)
     badTestToken = await BadTestToken.deploy('Bad', 'BAD')
-    const BadReentrantTestToken = await ethers.getContractFactory(
-      'BadReentrantERC20',
-      signers[1]
-    )
+    const BadReentrantTestToken = await ethers.getContractFactory('BadReentrantERC20', alice)
     badReentrantTestToken = await BadReentrantTestToken.deploy('Liar', 'LIAR')
 
-    await badTestToken.deployed()
+    await badTestToken.waitForDeployment()
 
-    await badTestToken.mint(
-      signers[0].address,
-      ethers.BigNumber.from('100000000000000000000')
-    )
+    await badTestToken.mint(owner.address, ethers.parseEther('100'))
 
     dpa = await DPA.deploy()
-    await dpa.deployed()
+    await dpa.waitForDeployment()
+    dpaAddress = await dpa.getAddress()
 
     testAuction = {
-      ceiling: ethers.BigNumber.from('20000000000000000000'),
-      floor: ethers.BigNumber.from('10000000000000000000'),
+      ceiling: ethers.parseEther('20'),
+      floor: ethers.parseEther('10'),
       collectionId: 0,
-      paymentToken: testToken.address,
-      payee: signers[0].address,
-      endBlock: (await provider.getBlockNumber()) + 20,
-      tokens: [testToken.address],
-      tokenAmounts: [ethers.BigNumber.from('50000000000000000000')]
+      paymentToken: testTokenAddress,
+      payee: owner.address,
+      endBlock: (await time.latestBlock()) + 20,
+      tokens: [testTokenAddress],
+      tokenAmounts: [ethers.parseEther('50')],
     }
 
     badTestAuction = {
-      ceiling: ethers.BigNumber.from('20000000000000000000'),
-      floor: ethers.BigNumber.from('10000000000000000000'),
+      ceiling: ethers.parseEther('20'),
+      floor: ethers.parseEther('10'),
       collectionId: 0,
-      paymentToken: testToken.address,
-      payee: signers[0].address,
-      endBlock: (await provider.getBlockNumber()) + 20,
-      tokens: [badTestToken.address],
-      tokenAmounts: [ethers.BigNumber.from('50000000000000000000')]
+      paymentToken: testTokenAddress,
+      payee: owner.address,
+      endBlock: (await time.latestBlock()) + 20,
+      tokens: [await badTestToken.getAddress()],
+      tokenAmounts: [ethers.parseEther('50')],
     }
 
     reallyBadTestAuction = {
-      ceiling: ethers.BigNumber.from('20000000000000000000'),
-      floor: ethers.BigNumber.from('10000000000000000000'),
+      ceiling: ethers.parseEther('20'),
+      floor: ethers.parseEther('10'),
       collectionId: 0,
-      paymentToken: badReentrantTestToken.address,
-      payee: signers[0].address,
-      endBlock: (await provider.getBlockNumber()) + 20,
-      tokens: [testToken.address],
-      tokenAmounts: [ethers.BigNumber.from('50000000000000000000')]
+      paymentToken: await badReentrantTestToken.getAddress(),
+      payee: owner.address,
+      endBlock: (await time.latestBlock()) + 20,
+      tokens: [testTokenAddress],
+      tokenAmounts: [ethers.parseEther('50')],
     }
   })
 
   describe('createAuction', function () {
     it('Should create an auction', async function () {
-      await testToken.approve(
-        dpa.address,
-        ethers.BigNumber.from('50000000000000000000')
-      )
-      await expect(dpa.createAuction(testAuction)).to.emit(
-        dpa,
-        'AuctionCreated'
-      )
+      await testToken.approve(dpaAddress, ethers.parseEther('50'))
+      await expect(dpa.createAuction(testAuction)).to.emit(dpa, 'AuctionCreated')
       const ts = await dpa.totalAuctions()
       expect(ts).to.equal(1)
-      const tstBal = await testToken.balanceOf(signers[0].address)
-      expect(tstBal).to.equal(ethers.BigNumber.from('50000000000000000000'))
+      const tstBal = await testToken.balanceOf(owner.address)
+      expect(tstBal).to.equal(ethers.parseEther('50'))
     })
 
     it('Should fail create an auction when it receives the wrong amount of tokens', async function () {
-      await badTestToken.approve(
-        dpa.address,
-        ethers.BigNumber.from('40000000000000000000')
-      )
-      await expect(dpa.createAuction(badTestAuction)).to.be.revertedWith(
-        'not-enough-transferred'
-      )
+      await badTestToken.approve(dpaAddress, ethers.parseEther('40'))
+      await expect(dpa.createAuction(badTestAuction)).to.be.revertedWith('not-enough-transferred')
     })
 
     it('Should fail create an auction when tokens will not escrow', async function () {
-      await expect(dpa.createAuction(testAuction)).to.be.revertedWith(
-        'ERC20: transfer amount exceeds allowance'
-      )
+      await expect(dpa.createAuction(testAuction)).to.be.revertedWith('ERC20: insufficient allowance')
     })
   })
 
   describe('stopAuction', function () {
     beforeEach(async function () {
-      await testToken.approve(
-        dpa.address,
-        ethers.BigNumber.from('50000000000000000000')
-      )
+      await testToken.approve(dpaAddress, ethers.parseEther('50'))
       await dpa.createAuction(testAuction)
     })
 
@@ -137,34 +110,29 @@ describe('Descending Price Auction', function () {
       await dpa.stopAuction(id)
       const auction = await dpa.getAuction(id)
       expect(auction.stopped).to.be.true
-      let tstBal = await testToken.balanceOf(signers[0].address)
-      expect(tstBal).to.equal(ethers.BigNumber.from('100000000000000000000'))
-      tstBal = await testToken.balanceOf(dpa.address)
+      let tstBal = await testToken.balanceOf(owner.address)
+      expect(tstBal).to.equal(ethers.parseEther('100'))
+      tstBal = await testToken.balanceOf(dpaAddress)
       expect(tstBal).to.equal(0)
     })
   })
 
   describe('collections', function () {
     beforeEach(async function () {
-      await testToken.approve(
-        dpa.address,
-        ethers.BigNumber.from('100000000000000000000')
-      )
-      testAuction.tokenAmounts = [ethers.BigNumber.from('10000000000000000000')]
+      await testToken.approve(dpaAddress, ethers.parseEther('100'))
+      testAuction.tokenAmounts = [ethers.parseEther('10')]
     })
 
     it('Should create a collection', async function () {
-      await expect(dpa.createCollection())
-        .to.emit(dpa, 'CollectionCreated')
-        .withArgs(1, signers[0].address)
+      await expect(dpa.createCollection()).to.emit(dpa, 'CollectionCreated').withArgs(1, owner.address)
     })
 
     it('Should transfer a collection', async function () {
       await dpa.createCollection()
       const cId = 1
-      await expect(dpa.transferCollection(signers[1].address, cId))
+      await expect(dpa.transferCollection(alice.address, cId))
         .to.emit(dpa, 'CollectionTransfer')
-        .withArgs(1, signers[0].address, signers[1].address)
+        .withArgs(1, owner.address, alice.address)
     })
 
     it('Should create an auction within a collection', async function () {
@@ -172,17 +140,17 @@ describe('Descending Price Auction', function () {
       testAuction.collectionId = 1
       const ta = await dpa.totalAuctions()
       await dpa.createAuction(testAuction)
-      const auction = await dpa.getAuction(ta.add(1))
+      const auction = await dpa.getAuction(ta + 1n)
       expect(auction.collectionId).to.equal(1)
     })
 
     it('Should fail to create an auction in an unowned collection', async function () {
       await dpa.createCollection()
       testAuction.collectionId = 1
-      const dpaUserOne = dpa.connect(signers[1])
-      await expect(
-        dpaUserOne.createAuction(testAuction, { from: signers[1].address })
-      ).to.be.revertedWith('caller-not-collection-owner')
+      const dpaUserOne = dpa.connect(alice)
+      await expect(dpaUserOne.createAuction(testAuction, { from: alice.address })).to.be.revertedWith(
+        'caller-not-collection-owner',
+      )
     })
 
     it('Should get all auctions within a collection', async function () {
@@ -205,11 +173,8 @@ describe('Descending Price Auction', function () {
 
   describe('auctioneers', function () {
     beforeEach(async function () {
-      await testToken.approve(
-        dpa.address,
-        ethers.BigNumber.from('100000000000000000000')
-      )
-      testAuction.tokenAmounts = [ethers.BigNumber.from('10000000000000000000')]
+      await testToken.approve(dpaAddress, ethers.parseEther('100'))
+      testAuction.tokenAmounts = [ethers.parseEther('10')]
     })
 
     it('Should get all auctions by a single auctioneer', async function () {
@@ -217,10 +182,10 @@ describe('Descending Price Auction', function () {
       await dpa.createAuction(testAuction)
       await dpa.createAuction(testAuction)
       await dpa.createAuction(testAuction)
-      const neerGroupLength = await dpa.neerGroupLength(signers[0].address)
+      const neerGroupLength = await dpa.neerGroupLength(owner.address)
       expect(neerGroupLength).to.equal(4)
       for (let i = 0; i < neerGroupLength; i++) {
-        const aId = await dpa.auctionOfNeerByIndex(signers[0].address, i)
+        const aId = await dpa.auctionOfNeerByIndex(owner.address, i)
         const auction = await dpa.getAuction(aId)
         expect(auction.collectionId).to.equal(0)
       }
@@ -229,52 +194,39 @@ describe('Descending Price Auction', function () {
 
   describe('bidding', function () {
     beforeEach(async function () {
-      await testToken.approve(
-        dpa.address,
-        ethers.BigNumber.from('100000000000000000000')
-      )
-      const ttTwo = testToken.connect(signers[1])
-      await ttTwo.approve(
-        dpa.address,
-        ethers.BigNumber.from('100000000000000000000')
-      )
-      testAuction.tokenAmounts = [ethers.BigNumber.from('10000000000000000000')]
+      await testToken.approve(dpaAddress, ethers.parseEther('100'))
+      const ttTwo = testToken.connect(alice)
+      await ttTwo.approve(dpaAddress, ethers.parseEther('100'))
+      testAuction.tokenAmounts = [ethers.parseEther('10')]
     })
 
     it('Should win an auction and all parties should get relevant proceeds', async function () {
       await dpa.createAuction(testAuction)
-      const dpaUserOne = dpa.connect(signers[1])
+      const dpaUserOne = dpa.connect(alice)
       await dpaUserOne.bid(1)
       const auction = await dpa.getAuction(1)
       expect(auction.stopped).to.be.true
-      expect(auction.winner).to.equal(signers[1].address)
+      expect(auction.winner).to.equal(alice.address)
       expect(auction.winningBlock).to.be.gt(0)
       expect(auction.winningPrice).to.be.gt(0)
-      const ownerBalAfter = await testToken.balanceOf(signers[0].address)
-      const bidderBalAfter = await testToken.balanceOf(signers[1].address)
-      expect(ownerBalAfter.add(bidderBalAfter)).to.equal(
-        ethers.BigNumber.from('200000000000000000000')
-      )
+      const ownerBalAfter = await testToken.balanceOf(owner.address)
+      const bidderBalAfter = await testToken.balanceOf(alice.address)
+      expect(ownerBalAfter + bidderBalAfter).to.equal(ethers.parseEther('200'))
     })
   })
 
   describe('getCurrentPrice', function () {
     it('Should fail to get the price if auctionId is invalid', async function () {
-      await expect(dpa.getCurrentPrice(0)).to.be.revertedWith(
-        'no-such-auction-id'
-      )
+      await expect(dpa.getCurrentPrice(0)).to.be.revertedWith('no-such-auction-id')
     })
 
     it('Should get the price given an auctionId', async function () {
-      await testToken.approve(
-        dpa.address,
-        ethers.BigNumber.from('100000000000000000000')
-      )
+      await testToken.approve(dpaAddress, ethers.parseEther('100'))
       await dpa.createAuction(testAuction)
       // this is just to advance 1 block for the sake of the test
       await dpa.createAuction(testAuction)
       const price = await dpa.getCurrentPrice(1)
-      expect(price).to.be.lt(ethers.BigNumber.from('20000000000000000000'))
+      expect(price).to.be.lt(ethers.parseEther('20'))
     })
 
     it('Should properly calculate the price given the ceiling, floor, and current time', async function () {
@@ -342,8 +294,8 @@ describe('Descending Price Auction', function () {
     it('Should properly calculate the price 4', async function () {
       const s = 100
       const e = 200
-      const c = ethers.BigNumber.from('600000000000000000000')
-      const f = ethers.BigNumber.from('400000000000000000000')
+      const c = ethers.parseEther('600')
+      const f = ethers.parseEther('400')
       let t = 125
       const absDecay = await dpa.calcAbsDecayTest(c, f, s, e)
       let p = await dpa.getCurrentPriceTest(absDecay, f, e, t)
@@ -381,17 +333,12 @@ describe('Descending Price Auction', function () {
 
   describe('Reentrancy', function () {
     it('Should not be reenterable', async function () {
-      await testToken.approve(
-        dpa.address,
-        ethers.BigNumber.from('50000000000000000000')
-      )
-      await testToken
-        .connect(signers[1])
-        .approve(dpa.address, ethers.BigNumber.from('50000000000000000000'))
+      await testToken.approve(dpaAddress, ethers.parseEther('50'))
+      await testToken.connect(alice).approve(dpaAddress, ethers.parseEther('50'))
       await dpa.createAuction(testAuction)
-      await dpa.connect(signers[1]).createAuction(reallyBadTestAuction)
+      await dpa.connect(alice).createAuction(reallyBadTestAuction)
       const aId = await dpa.totalAuctions()
-      const tx = dpa.connect(signers[1]).bid(aId)
+      const tx = dpa.connect(alice).bid(aId)
       await expect(tx).to.be.revertedWith('ReentrancyGuard: reentrant call')
     })
   })
