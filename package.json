@@ -18,7 +18,6 @@
     "solhint:fix": "prettier --write 'contracts/**/*.sol'",
     "prepare": "husky install",
     "deploy": "npx hardhat deploy",
-    "verify": "npx hardhat etherscan-verify",
     "create-release": "hardhat create-release"
   },
   "author": "BLOQ",

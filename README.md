@@ -35,8 +35,5 @@ $ npm run deploy -- --gasprice <gas price in wei> --network <network>
 
 # create release
 $ npx hardhat create-release --release <semver> --network <network>
-
-# verify
-$ npm run verify -- --network <network>
 ```
 
