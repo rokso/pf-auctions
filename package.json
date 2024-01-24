@@ -11,7 +11,7 @@
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
-    "coverage": "npm run build && npx hardhat coverage --temp artifacts --network coverage",
+    "coverage": "npm run build && npx hardhat coverage",
     "lint": "eslint ./test/*",
     "lint:fix": "eslint --fix ./test --ext .js",
     "solhint": "solhint './contracts/**/*.sol'",
