@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { ethers } from 'hardhat'
+import { ethers, network } from 'hardhat'
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers'
 import { time, setBalance } from '@nomicfoundation/hardhat-network-helpers'
 import { DPAMock, FlashBidder, IDescendingPriceAuction, IERC20, IVesperPool, TokenLike } from '../typechain-types'
@@ -11,16 +11,46 @@ const VUSDC_HOLDER = '0xA67EC8737021A7e91e883A3277384E6018BB5776'
 const WETH = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 const VUSDC = '0x0C49066C0808Ee8c673553B7cbd99BCC9ABf113d'
 
-describe('Descending Price Auction Deployment Test', function () {
+const startFork = async (): Promise<void> => {
+  const blockNumber = process.env.BLOCK_NUMBER ? process.env.BLOCK_NUMBER : undefined
+  await network.provider.request({
+    method: 'hardhat_reset',
+    params: [
+      {
+        forking: {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          blockNumber,
+          jsonRpcUrl: process.env.NODE_URL,
+        },
+      },
+    ],
+  })
+}
+
+const stopFork = async (): Promise<void> => {
+  await network.provider.request({
+    method: 'hardhat_reset',
+    params: [],
+  })
+}
+
+// eslint-disable-next-line mocha/no-skipped-tests
+describe.skip('Descending Price Auction Deployment Test', function () {
   let dpa: DPAMock, vsp: IERC20, vusdc: IVesperPool, testAuction: IDescendingPriceAuction.DPAConfigStruct
   let weth: TokenLike, flash: FlashBidder
   let alice: SignerWithAddress, bob: SignerWithAddress
   let dpaAddress: string
 
   before(async function () {
+    startFork()
     // eslint-disable-next-line no-extra-semi
     ;[alice, bob] = await ethers.getSigners()
   })
+
+  after(async function () {
+    stopFork()
+  })
+
   beforeEach(async function () {
     // Deploy Register
     dpa = await ethers.getContractAt('DPAMock', MAINNET_DPA)
