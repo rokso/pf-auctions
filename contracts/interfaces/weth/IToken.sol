@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.3;
+pragma solidity 0.8.9;
 
 interface TokenLike {
     function approve(address, uint256) external returns (bool);
@@ -9,11 +9,7 @@ interface TokenLike {
 
     function transfer(address, uint256) external returns (bool);
 
-    function transferFrom(
-        address,
-        address,
-        uint256
-    ) external returns (bool);
+    function transferFrom(address, address, uint256) external returns (bool);
 
     function deposit() external payable;
 

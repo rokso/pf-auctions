@@ -3,4 +3,7 @@ cache
 .DS_Store
 artifacts
 coverage/
+coverage.json
+typechain*
+deployments/localhost*
 .env
