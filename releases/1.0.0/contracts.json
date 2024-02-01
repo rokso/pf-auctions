@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0",
+  "networks": {
+    "mainnet": {
+      "DescendingPriceAuction": "0x164D41ceB60489D2e054394Fc05ED1894Db3898a"
+    }
+  }
+}

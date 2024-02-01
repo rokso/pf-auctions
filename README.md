@@ -3,21 +3,13 @@ Auction contracts for Pure Finance...
 
 Stack:
 - [Hardhat](https://hardhat.org/)
-- [Ethers.js](https://docs.ethers.io/v5/)
-- [Waffle](https://ethereum-waffle.readthedocs.io/en/latest/index.html)
+- [Ethers.js](https://docs.ethers.io/v6/)
 
 ## How to use this repository
 
 ```
 $ npm install
 ```
-
-OR
-
-```
-$ yarn i
-```
-
 
 ### Build Contracts
 ```
@@ -34,7 +26,14 @@ $ npm run test
 $ npm run coverage
 ```
 
-#### To Be Added:
-- Deployment scripts
-- Configure Etherscan contract verification plugin
-- Fork chain config, if necessary
+### Deploy
+Setup the env vars properly (See `.env.template` file) and run:
+
+```sh
+# deploy
+$ npm run deploy -- --gasprice <gas price in wei> --network <network>
+
+# create release
+$ npx hardhat create-release --release <semver> --network <network>
+```
+
