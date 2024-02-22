@@ -4,7 +4,7 @@
     "mainnet": {
       "DescendingPriceAuction": "0x164D41ceB60489D2e054394Fc05ED1894Db3898a"
     },
-    "bvm": {
+    "hemi": {
       "DescendingPriceAuction": "0xFAfE66bB00Bc805A7Bc264D9272909693d02dBE5"
     }
   }
