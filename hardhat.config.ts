@@ -50,9 +50,15 @@ const config: HardhatUserConfig = {
       accounts,
     },
 
-    hemi: {
+    hemiSepolia: {
       url: nodeUrl,
       chainId: 743111,
+      accounts,
+    },
+
+    hemi: {
+      url: nodeUrl,
+      chainId: 43111,
       accounts,
     },
 
@@ -69,16 +75,25 @@ const config: HardhatUserConfig = {
 
   etherscan: {
     apiKey: {
+      hemiSepolia: 'noApiKeyNeeded',
       hemi: 'noApiKeyNeeded',
       mainnet: process.env.ETHERSCAN_API_KEY || '',
     },
     customChains: [
       {
-        network: 'hemi',
+        network: 'hemiSepolia',
         chainId: 743111,
         urls: {
-          apiURL: 'https://testnet.explorer.hemi.network/api',
-          browserURL: 'https://testnet.explorer.hemi.network',
+          apiURL: 'https://testnet.explorer.hemi.xyz/api',
+          browserURL: 'https://testnet.explorer.hemi.xyz',
+        },
+      },
+      {
+        network: 'hemi',
+        chainId: 43111,
+        urls: {
+          apiURL: 'https://explorer.hemi.xyz/api',
+          browserURL: 'https://explorer.hemi.xyz',
         },
       },
     ],
